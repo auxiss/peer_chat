@@ -78,7 +78,10 @@ class Peer:
         # LISTEN FOR MESSAGES
         def receive_messages():
             while self.running:
-                data, addr = sock.recvfrom(1024)
+                try:
+                    data, addr = sock.recvfrom(1024) 
+                except:
+                    continue
                 if data.decode() == "KEEPALAIVE":
                     #print(f"keepalive from {addr}")
                     pass

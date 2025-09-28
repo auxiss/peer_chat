@@ -5,7 +5,7 @@ def subscribe(server_url,your_public_key, your_ip, your_port):
     data = {"action": "subscribe", "public_key": your_public_key, "peer_ip": your_ip, "peer_port": your_port}
 
     try:
-        response = requests.post(server_url, json=data)  # send JSON payload
+        response = requests.post(server_url, json=data, timeout=5)  # send JSON payload
         if response.status_code != 200:
             print("Status code:", response.status_code)
             print("Error:", response.text)
@@ -29,7 +29,7 @@ def connect_to_peer(server_url, your_public_key, target_key):
     data = {"action": "connect_to_peer", "public_key": your_public_key, "target_key": target_key}
 
     try:
-        response = requests.post(server_url, json=data)  # send JSON payload
+        response = requests.post(server_url, json=data, timeout=5)  # send JSON payload
         #print("raw response:", response.text)
         #print("status code:", response.status_code)
     except:
