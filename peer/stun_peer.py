@@ -65,6 +65,8 @@ class Peer:
             "satate": peer_sate,
             "last_seen": self.last_seen_time
             }
+        
+        return status
 
 
 
