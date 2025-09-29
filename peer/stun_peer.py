@@ -156,7 +156,15 @@ class Peer:
         #keep the main thread alive
         while self.running:
             try:
-                time.sleep(10)
+                time.sleep(5)
+                if self.last_seen_time is not None:
+                    time_since_last_seen = time.time() - self.last_seen_time
+                    if time_since_last_seen > 2:
+                        self.peer_sate = "Disconnected"
+                    else:
+                        self.peer_sate = "Connected"
+                else:
+                    self.peer_sate = "Disconnected"
 
             except KeyboardInterrupt:
                 print("Exiting...")
@@ -165,6 +173,7 @@ class Peer:
 
         sock.close()
         print("Socket closed.")
+        exit(0)
 
 
     def stop(self):

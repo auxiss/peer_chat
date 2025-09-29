@@ -89,7 +89,7 @@ class p2peer:
 
                         else:
                             print("Connection failed.")
-                            
+
                 time.sleep(60)
 
 
@@ -145,6 +145,7 @@ if __name__ == "__main__":
     while True:
         try:
             stdinput_text = input("-$ ")
+            
             if stdinput_text.lower() == "exit":
                 p2p.close()
                 break
