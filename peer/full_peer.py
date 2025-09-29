@@ -1,5 +1,7 @@
 import randevu_client
 import stun_peer
+import time
+import threading
 
 
 
@@ -9,6 +11,7 @@ class p2peer:
         self.randevu_server_list = randevu_server_list
         self.active_randevu_servers = []
         self.peer = stun_peer.Peer(stun_list)
+        self.running = False
     
         info = self.peer.get_info()
         my_external_ip = info['ip']
@@ -33,38 +36,68 @@ class p2peer:
             for url in self.active_randevu_servers:
                 print(f"- {url}")
             print()
-                
 
 
+    def close(self):
+        if self.running:
+            self.running = False
+            self.peer.stop()
+            self.connection_thread.join()
+
+    def status(self):
+        return self.peer.peer_status()
+    
+    def info(self):
+        return self.peer.get_info()
+    
+    def send_message(self, message):
+        self.peer.send_message(message)
+
+    def recive_message(self):
+        return self.peer.recive_message()
+    
+    def start(self, your_public_key, target_public_key):
+        self.running = True
         
-    def connect(self, your_public_key, target_public_key):
-            for url in self.active_randevu_servers:
-            
-                print(f"Attempting to connect to server ({url}) for peer ({target_public_key}) info...")
-                con_res = randevu_client.connect_to_peer(url, your_public_key, target_public_key)
-                if con_res is not None:
 
-                    #print("Connection response:", con_res)
-                    if 'message' in con_res and con_res['message'] == 'peer not found':
-                        print("-- Peer not found.")
+        def connect(your_public_key, target_public_key):
+                while self.running:
+                    for url in self.active_randevu_servers:
+                    
+                        print(f"Attempting to connect to server ({url}) for peer ({target_public_key}) info...")
+                        con_res = randevu_client.connect_to_peer(url, your_public_key, target_public_key)
+                        if con_res is not None:
 
-
-                    elif 'message' in con_res and con_res['message'] == 'Peer found':
-
-                        target_info = con_res['target_info']
-                        peer_ip = target_info['ip']
-                        peer_port = target_info['port']
-                        peer_key = target_info['public_key']
-
-                        print(f"-- Peer {peer_key} found at: {peer_ip}:{peer_port}")
-                        print("-- Attempting to connect to peer...\n")
-                        self.peer.start(peer_ip, peer_port)
-                        break
+                            #print("Connection response:", con_res)
+                            if 'message' in con_res and con_res['message'] == 'peer not found':
+                                print("-- Peer not found.")
+                                
 
 
-                else:
-                    print("Connection failed.")
+                            elif 'message' in con_res and con_res['message'] == 'Peer found':
 
+                                target_info = con_res['target_info']
+                                peer_ip = target_info['ip']
+                                peer_port = target_info['port']
+                                peer_key = target_info['public_key']
+
+                                print(f"-- Peer {peer_key} found at: {peer_ip}:{peer_port}")
+                                print("-- Attempting to connect to peer...\n")
+                                self.peer.start(peer_ip, peer_port)
+                                break
+
+
+                        else:
+                            print("Connection failed.")
+                            
+                time.sleep(60)
+
+
+        #print("Starting connection thread...")
+        self.connection_thread = threading.Thread(target=connect, args=(your_public_key, target_public_key), daemon=True)
+        self.connection_thread.start()
+        #print("Connection thread started.")
+    
             
 
 
@@ -107,6 +140,37 @@ if __name__ == "__main__":
 
 
     p2p = p2peer(stun_list, randevu_server_list)
-    p2p.connect(your_public_key, target_public_key)
+    p2p.start(your_public_key, target_public_key)
+
+    while True:
+        try:
+            stdinput_text = input("-$ ")
+            if stdinput_text.lower() == "exit":
+                p2p.close()
+                break
+            elif stdinput_text.lower() == "status":
+                print(p2p.status())
+            elif stdinput_text.lower() == "info":
+                print(p2p.info())
+            elif stdinput_text.lower().startswith("send "):
+                message = stdinput_text[5:]
+                p2p.send_message(message)
+            elif stdinput_text.lower() == "recive":
+                message = p2p.recive_message()
+                if message is None:
+                    print("No new messages.")
+                else:
+                    print("Recived message:", message)
+            else:
+                print("Unknown command. Available commands: send <message>, recive, status, info, exit")
+
+        except KeyboardInterrupt:
+            print("Exiting...")
+            p2p.close()
+            break
+
+
+
+
 
     
