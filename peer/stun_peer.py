@@ -8,6 +8,7 @@ import stun
 class Peer:
     def __init__(self, stun_list):
         self.stun_list = stun_list
+        self.last_seen_time = None
 
 
 
@@ -46,6 +47,24 @@ class Peer:
 
     def get_info(self):
         return self.external_info
+    
+    def peer_status(self):
+
+        if self.last_seen_time is not None:
+            time_since_last_seen = time.time() - self.last_seen_time
+            if time_since_last_seen > 10:
+                peer_sate = "Disconnected"
+            else:
+                peer_sate = "Connected"
+        else:
+            peer_sate = "Disconnected"
+
+        status = {
+            "peer_ip": self.peer_ip if hasattr(self, 'peer_ip') else None,
+            "peer_port": self.peer_port if hasattr(self, 'peer_port') else None,
+            "satate": peer_sate,
+            "last_seen": self.last_seen_time
+            }
 
 
 
@@ -82,6 +101,8 @@ class Peer:
                     data, addr = sock.recvfrom(1024) 
                 except:
                     continue
+
+                self.last_seen_time = time.time()
                 if data.decode() == "KEEPALAIVE":
                     #print(f"keepalive from {addr}")
                     pass
