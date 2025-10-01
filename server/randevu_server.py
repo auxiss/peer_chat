@@ -1,10 +1,20 @@
-from flask import Flask, request, jsonify
-
+from flask import Flask, request, jsonify, Response
+import queue
 
 
 app = Flask(__name__)
 
 peers = []
+notifications = {}  # public_key -> Queue
+
+@app.route("/events/<public_key>")               #not working yet
+def sse(public_key):
+    def event_stream():
+        q = notifications.setdefault(public_key, queue.Queue())
+        while True:
+            msg = q.get()
+            yield f"data: {msg}\n\n"
+    return Response(event_stream(), mimetype="text/event-stream")
 
 
 @app.route("/meet", methods=["POST"])
@@ -50,6 +60,8 @@ def receive():
 
     if data['action'] == 'connect_to_peer':
         target_key = data['target_key']
+        peer_key = data['public_key']
+        
 
         for peer in peers:
             if peer['public_key'] == target_key:
@@ -61,6 +73,17 @@ def receive():
                     "ip": target_ip,
                     "port": target_port
                 }
+
+                for p in peers: #finde source peer inforamasion to send to target peer
+                    if p['public_key'] == peer_key:
+                        peer_ip = p['ip']
+                        peer_port = p['port']
+                        break
+
+                # Notify target peer via SSE                                  #not tested yet
+                msg = f"Peer {peer_key} is trying to connect to you. from address {peer_ip}:{peer_port}"
+                notifications.setdefault(target_key, queue.Queue()).put(msg)
+                
 
                 print("Target peer found:", target_peer)
                 return jsonify({"message": "Peer found", "target_info": target_peer}), 200
@@ -75,6 +98,6 @@ def receive():
     
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
 
 

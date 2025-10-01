@@ -90,7 +90,7 @@ class p2peer:
                         else:
                             print("Connection failed.")
 
-                time.sleep(60)
+                    time.sleep(60)
 
 
         #print("Starting connection thread...")
@@ -125,7 +125,7 @@ if __name__ == "__main__":
 ''')
 
     your_public_key = input("Enter your public key: ")
-    target_public_key = input("Enter target peer's public key: ")
+    
 
     
 
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
 
     p2p = p2peer(stun_list, randevu_server_list)
-    p2p.start(your_public_key, target_public_key)
+    
 
     while True:
         try:
@@ -162,8 +162,19 @@ if __name__ == "__main__":
                     print("No new messages.")
                 else:
                     print("Recived message:", message)
+
+            elif stdinput_text.lower() == "connect":
+                target_public_key = input("Enter target peer's public key: ")
+                p2p.start(your_public_key, target_public_key)
+
+            elif stdinput_text.lower() == "getfriendreq":
+                randevu_client.get_freind_requests_from_sse(randevu_server_list[1], your_public_key)  #not tested yet
+
+            elif stdinput_text.strip() == "":
+                continue
+                
             else:
-                print("Unknown command. Available commands: send <message>, recive, status, info, exit")
+                print("Unknown command. Available commands: getfriendreq, connect, send <message>, recive, status, info, exit")
 
         except KeyboardInterrupt:
             print("Exiting...")

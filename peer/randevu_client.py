@@ -1,4 +1,6 @@
 import requests
+import sseclient
+
 
 def subscribe(server_url,your_public_key, your_ip, your_port):
     
@@ -52,6 +54,26 @@ def connect_to_peer(server_url, your_public_key, target_key):
     #print("Response:", response.json())  # assuming Flask returns JSON
     #print(f"peer {target_key} found")
     return response.json()
+
+
+
+def get_freind_requests_from_sse(server_url, your_public_key):
+    sse_url = f"{server_url.replace('/meet', '')}/events/{your_public_key}"
+    try:
+        response = requests.get(sse_url, stream=True)
+        print(f'raw response from {sse_url}:', response)
+        print("Response headers:", response.headers)
+        # Check Content-Type
+        if response.headers.get("Content-Type") != "text/event-stream":
+            print("Error: Server did not return text/event-stream")
+            return
+        '''print("Connected to SSE endpoint.")
+        client = sseclient.SSEClient(response)
+        print(f"Listening for notifications at {sse_url}...")
+        for event in client.events():
+            print("Notification:", event.data)'''
+    except Exception as e:
+        print("Failed to connect to SSE endpoint:", str(e))
 
    
     

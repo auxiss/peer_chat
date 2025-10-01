@@ -18,3 +18,11 @@ fow windows use the following commands (shell):
 3) python peer\full_peer.py # to run it
 
 
+to create an exe file in win use following commands (shell): 
+1) pip install pyinstaller
+2) cd peer
+3) pyinstaller --onefile full_peer.py
+
+
+
+
