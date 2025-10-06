@@ -76,7 +76,26 @@ def get_freind_requests_from_sse(server_url, your_public_key):
         print("Failed to connect to SSE endpoint:", str(e))
 
    
-    
+def get_all_peers(server_url):
+    data = {"action": "get_all_peers"}
+
+    try:
+        response = requests.post(server_url, json=data, timeout=1)  # send JSON payload
+        if response.status_code != 200:
+            print("Status code:", response.status_code)
+            print("Error:", response.text)
+            return None
+
+        if response.headers.get('Content-Type') != 'application/json':
+            print("Error: Response is not in JSON format")
+            return None
+        
+        #print("Response:", response.json())
+        #print(f"Got all peers from {server_url}")
+        return response.json()
+    except Exception as e:
+        print("Failed to connect to the server. Exception:", str(e))
+        return None
     
 
 

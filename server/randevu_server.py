@@ -91,8 +91,14 @@ def receive():
         return jsonify({"error": "Peer not found"}), 404
 
 
+    if data['action'] == 'get_all_peers':
+
+        print("Returning peer list:", peers)
+        return jsonify({"peers": peers}), 200
 
     return jsonify({"error": "Invalid action"}), 400
+
+    
 
 
     

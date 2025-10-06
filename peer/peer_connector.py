@@ -173,11 +173,23 @@ if __name__ == "__main__":
             elif stdinput_text.lower() == "getfriendreq":
                 randevu_client.get_freind_requests_from_sse(randevu_server_list[1], your_public_key)  #not tested yet
 
+            elif stdinput_text.lower() == "getpeers":
+                for url in p2p.active_randevu_servers:
+                    print(f"Getting peer list from {url}...")
+                    peer_list = randevu_client.get_all_peers(url)
+                    if peer_list is not None and 'peers' in peer_list:
+                        print("Peer list:")
+                        for peer in peer_list['peers']:
+                            print(f"- {peer}")
+                    else:
+                        print("Failed to get peer list or no peers available.")
+                print()
+
             elif stdinput_text.strip() == "":
                 continue
                 
             else:
-                print("Unknown command. Available commands: getfriendreq, connect, send <message>, recive, status, info, exit")
+                print("Unknown command. Available commands: getfriendreq, connect, send <message>, recive, status, info, getpeers, exit")
 
         except KeyboardInterrupt:
             print("Exiting...")

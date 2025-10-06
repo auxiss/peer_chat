@@ -34,7 +34,7 @@ if not os.path.exists("settings.conf"):
 
 
 def load_settings():
-    with open("settings.txt", "r") as f:
+    with open("settings.conf", "r") as f:
         settings = json.load(f)
     return settings
 
