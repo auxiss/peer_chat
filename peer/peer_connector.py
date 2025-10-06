@@ -1,7 +1,10 @@
 import randevu_client
-import stun_peer
+import peer_core
 import time
 import threading
+import rsa_enryption
+
+
 
 
 
@@ -10,7 +13,7 @@ class p2peer:
         self.stun_list = stun_list
         self.randevu_server_list = randevu_server_list
         self.active_randevu_servers = []
-        self.peer = stun_peer.Peer(stun_list)
+        self.peer = peer_core.Peer(stun_list)
         self.running = False
     
         info = self.peer.get_info()
@@ -110,6 +113,7 @@ class p2peer:
 
 
 if __name__ == "__main__":
+    import settings_loader
 
 
     print('''
@@ -124,20 +128,18 @@ if __name__ == "__main__":
                                           \_/  \___(_)_|
 ''')
 
-    your_public_key = input("Enter your public key: ")
-    
+    settings = settings_loader.load_settings()
+    your_public_key = settings["public_key"]
+    print("Your public key:")
+    print(your_public_key)
 
     
+    
 
-    stun_list = [
-    ("stun.l.google.com", 19302),
-    ("stun.nextcloud.com", 443)
-    ]
+    stun_list = settings["stun_list"]
+    randevu_server_list = settings["randevu_servers"]
 
-
-    randevu_server_list = ["http://16.198.47.48:5000/meet",   #fake server dose not work intensionally.
-                           "http://217.69.14.234:5000/meet"]  #real server should work.
-
+    peers = settings["known_peers"]
 
     p2p = p2peer(stun_list, randevu_server_list)
     
@@ -156,6 +158,7 @@ if __name__ == "__main__":
             elif stdinput_text.lower().startswith("send "):
                 message = stdinput_text[5:]
                 p2p.send_message(message)
+
             elif stdinput_text.lower() == "recive":
                 message = p2p.recive_message()
                 if message is None:

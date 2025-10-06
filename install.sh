@@ -34,6 +34,8 @@ pip install \
     pystun3 \
     requests \
     urllib3 \
-    Werkzeug
+    sseclient \
+    Werkzeug \
+    cryptography
 
 echo "All packages installed successfully."
