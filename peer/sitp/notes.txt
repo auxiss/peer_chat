@@ -1,0 +1,63 @@
+#Packet formats
+
+
+
+Initialization (handshake) packet
+
+Init_packet = {                  ------->>>
+    "packet_type": "INIT",
+    "session_id": int,
+    "object_type": str,
+    "total_size": int,
+    "chunk_size": int,
+    "total_chunks": int,
+}
+
+
+
+
+
+Receiver acknowledgment
+
+Init_accept_packet = {         <<<----------
+    "packet_type": "IACC",
+    "session_id": int,
+}
+
+
+
+
+
+Data transfer phase
+- Sender transmits all data chunks one by one via UDP packets
+
+Data_packet = {                 ------------->>>
+    "packet_type": "DATA",
+    "session_id": int,
+    "chunk_id": int,
+    "payload_size": int,
+    "payload": bytes,
+    "hash": str,
+}
+
+
+
+
+
+Integrity verification
+- recipient checks for corupted data-packets/chunks or missing ones.
+
+Integrity_report_packet = {       <<<-----------
+    "packet_type": "INRE",
+    "session_id": int,
+    "missing_chunks_len": int,     # 0 meens sucsess
+}
+
+
+
+
+
+
+
+
+
